@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eddy</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#07090f;color:#f3f5ff;font-family:system-ui,-apple-system,sans-serif;height:100vh;display:flex;flex-direction:column}
+header{padding:22px 20px 12px;font-weight:800;font-size:25px;display:flex;justify-content:space-between}
+.sub{color:#8f96a8;font-size:13px;font-weight:500}.orb{width:150px;height:150px;border-radius:50%;margin:55px auto 22px;background:radial-gradient(circle at 35% 30%,#8fe8ff,#2677ff 38%,#111a48 70%,#07090f 72%);box-shadow:0 0 45px #2f86ff88, inset 0 0 30px #fff4;animation:pulse 2.8s infinite}
+@keyframes pulse{50%{transform:scale(1.04);box-shadow:0 0 70px #2f86ffaa,inset 0 0 30px #fff4}}
+#status{text-align:center;color:#aab1c3;margin-bottom:15px}.chat{flex:1;overflow:auto;padding:10px 18px}.msg{padding:12px 14px;border-radius:16px;margin:8px 0;max-width:86%;line-height:1.35}.eddy{background:#121827}.user{background:#2454a8;margin-left:auto}.bar{display:flex;gap:9px;padding:12px 14px 20px;background:#090c14}.bar input{flex:1;background:#121722;border:1px solid #252c3d;color:white;border-radius:18px;padding:14px;outline:none}.bar button{border:0;border-radius:18px;padding:0 17px;background:#2e83ff;color:white;font-weight:800}.mic{width:54px}
+</style>
+</head>
+<body>
+<header><div>EDDY <span class="sub">AI FRIEND</span></div><div class="sub">Eesar's Eddy</div></header>
+<div class="orb" id="orb"></div>
+<div id="status">Ready. Try talking to me.</div>
+<div class="chat" id="chat"><div class="msg eddy">Hey Eesar. I'm Eddy. My brain is still under construction, because apparently humans don't ship AI fully assembled. 😂</div></div>
+<div class="bar">
+<input id="input" placeholder="Talk to Eddy..." onkeydown="if(event.key==='Enter')send()">
+<button class="mic" onclick="listen()">🎙</button>
+<button onclick="send()">Send</button>
+</div>
+<script>
+const chat=document.getElementById('chat'), input=document.getElementById('input'), statusEl=document.getElementById('status');
+let memory=JSON.parse(localStorage.getItem('eddyMemory')||'{}');
+function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+function speak(t){if(window.AndroidEddy) AndroidEddy.speak(t); else if('speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t))}}
+function reply(q){
+ const x=q.toLowerCase();
+ let r;
+ if(x.includes('my name')||x.includes('who am i')) r='You are Eesar. I know that one, human.';
+ else if(x.includes('hello')||x.includes('hi')) r='Hey Eesar. Eddy online. Try not to break anything.';
+ else if(x.includes('remember')) { memory.note=q; localStorage.setItem('eddyMemory',JSON.stringify(memory)); r='Stored. My memory survives because we removed that ridiculous reset button.'; }
+ else if(x.includes('how are you')) r='Running, listening, and judging your questionable life choices with affection.';
+ else r='I heard you, Eesar. The real AI brain can be connected next, but this app shell is already alive, remembers locally, and can speak.';
+ add(r,'eddy'); speak(r);
+}
+function send(){let q=input.value.trim();if(!q)return;add(q,'user');input.value='';reply(q)}
+function listen(){if(window.AndroidEddy){statusEl.textContent='Listening...';AndroidEddy.listen()}else{statusEl.textContent='Use the Android microphone button.'}}
+window.eddyHeard=function(text){statusEl.textContent='Heard you.';add(text,'user');reply(text)}
+</script>
+</body>
+</html>
